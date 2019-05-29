@@ -31,7 +31,8 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
 
     def setup(self):
-        """ Game Setup and Variable Initialization """
+        """ Game Setup and Variable Initialization 
+        TODO: Create more enemies and perhaps a menu screen beforehand"""
         
         # Create the initial object lists
         self.player_list = arcade.SpriteList()
@@ -83,7 +84,9 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
     def on_draw(self):
-        """ Render the screen. """
+        """ Render the screen. 
+        TODO: Special effects for bolt & asteroid destruction"""
+        
         arcade.start_render()
         # Drawing of Moving Objects
         self.player_list.draw()
@@ -103,7 +106,7 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: Add more asteroids throughout the game """
+        TODO: Fix minor bugs """
         
         # Collision Checking for Asteroid and Player
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
@@ -207,7 +210,8 @@ class MyGame(arcade.Window):
         self.physics_engine.update()
     
     def on_key_press(self, key, modifiers):
-        """Called whenever a key is pressed. """
+        """Called whenever a key is pressed. 
+        TODO: More dynamic attacks/interactions"""
         
         #Movement
         if key == arcade.key.UP:
