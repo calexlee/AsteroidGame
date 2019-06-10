@@ -20,10 +20,11 @@ SPRITE_MAX_SCALING_ASTROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
 BOLT_SPEED = 7
+EXPLOSION_SIZE = 1
 
 
 class MyGame(arcade.Window):
-    """ Main application class. """
+    """ Main application class. TODO: Separate related blocks of code into separate file imports"""
 
     def __init__(self, width, height):
         super().__init__(width, height)
@@ -97,6 +98,9 @@ class MyGame(arcade.Window):
         start_x = 10
         start_y = 580
         arcade.draw_text(f"Score: {self.score}", start_x, start_y, arcade.color.WHITE)
+        start_x = 10
+        start_y = 565
+        arcade.draw_text(f"Lives: {self.lives}",start_x,start_y, arcade.color.WHITE)
         
         # GAME OVER text
         if self.lives < 1:
