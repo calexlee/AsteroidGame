@@ -20,7 +20,7 @@ SPRITE_MAX_SCALING_ASTROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
 BOLT_SPEED = 7
-EXPLOSION_SIZE = 1
+
 
 
 class MyGame(arcade.Window):
@@ -48,8 +48,10 @@ class MyGame(arcade.Window):
         
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
+        self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
         self.player_sprite.center_x = 400
         self.player_sprite.center_y = 300
+        self.player_sprite.movable = True
         self.player_list.append(self.player_sprite)
         
         for i in range(START_ASTEROID):
@@ -122,7 +124,9 @@ class MyGame(arcade.Window):
                 self.score = self.score - 100
             else:
                 self.lives = self.lives - 1 
-                self.player_sprite.kill()
+                self.player_sprite.set_texture(1)
+                self.player_sprite.movable = False
+                self.player_sprite.stop()
 
         
         # Asteroid Movement
@@ -157,6 +161,7 @@ class MyGame(arcade.Window):
             # Collision with asteroid
             bolt_hit_list = arcade.check_for_collision_with_list(bolt,self.asteroid_list)
             for asteroid_hit in bolt_hit_list:
+                    
                 if asteroid_hit.health > 1:
                     asteroid_hit.health = asteroid_hit.health - 1
                     bolt.kill()
@@ -167,7 +172,7 @@ class MyGame(arcade.Window):
                     self.numOfAsteroids = self.numOfAsteroids - 1
                     self.score = self.score + 10
                 
-            # Off Screen 
+            # Off Screen Deletion of Bolts 
             if bolt.center_x > SCREEN_WIDTH or bolt.center_x < 0 \
             or bolt.center_y > SCREEN_HEIGHT or bolt.center_y < 0:
                 bolt.kill()
@@ -218,55 +223,59 @@ class MyGame(arcade.Window):
         TODO: More dynamic attacks/interactions"""
         
         #Movement
-        if key == arcade.key.UP:
-            self.player_sprite.change_y = MOVEMENT_SPEED
-            self.player_sprite.angle = 0
-        elif key == arcade.key.DOWN:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
-            self.player_sprite.angle = 180
-        elif key == arcade.key.LEFT:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
-            self.player_sprite.angle = 90
-        elif key == arcade.key.RIGHT:
-            self.player_sprite.change_x = MOVEMENT_SPEED
-            self.player_sprite.angle = 270
-            
-        #Shooting 
-        if key == arcade.key.SPACE:
-            bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
-            if self.player_sprite.angle == 0:
-                bolt.center_x = self.player_sprite.center_x
-                bolt.center_y = self.player_sprite.center_y + 2
-                bolt.change_x = 0
-                bolt.change_y = BOLT_SPEED
-            elif self.player_sprite.angle == 180:
-                bolt.center_x = self.player_sprite.center_x
-                bolt.center_y = self.player_sprite.center_y - 2
-                bolt.change_x = 0
-                bolt.change_y = -BOLT_SPEED
-            elif self.player_sprite.angle == 90:
-                bolt.center_x = self.player_sprite.center_x - 2
-                bolt.center_y = self.player_sprite.center_y 
-                bolt.change_x = -BOLT_SPEED
-                bolt.change_y = 0
-            elif self.player_sprite.angle == 270:
-                bolt.center_x = self.player_sprite.center_x + 2
-                bolt.center_y = self.player_sprite.center_y 
-                bolt.change_x = BOLT_SPEED
-                bolt.change_y = 0
-            self.bolt_list.append(bolt)
+        if self.player_sprite.movable:
+            if key == arcade.key.UP:
+                self.player_sprite.change_y = MOVEMENT_SPEED
+                self.player_sprite.angle = 0
+            elif key == arcade.key.DOWN:
+                self.player_sprite.change_y = -MOVEMENT_SPEED
+                self.player_sprite.angle = 180
+            elif key == arcade.key.LEFT:
+                self.player_sprite.change_x = -MOVEMENT_SPEED
+                self.player_sprite.angle = 90
+            elif key == arcade.key.RIGHT:
+                self.player_sprite.change_x = MOVEMENT_SPEED
+                self.player_sprite.angle = 270
+                
+            #Shooting 
+            if key == arcade.key.SPACE:
+                bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
+                if self.player_sprite.angle == 0:
+                    bolt.center_x = self.player_sprite.center_x
+                    bolt.center_y = self.player_sprite.center_y + 2
+                    bolt.change_x = 0
+                    bolt.change_y = BOLT_SPEED
+                elif self.player_sprite.angle == 180:
+                    bolt.center_x = self.player_sprite.center_x
+                    bolt.center_y = self.player_sprite.center_y - 2
+                    bolt.change_x = 0
+                    bolt.change_y = -BOLT_SPEED
+                elif self.player_sprite.angle == 90:
+                    bolt.center_x = self.player_sprite.center_x - 2
+                    bolt.center_y = self.player_sprite.center_y 
+                    bolt.change_x = -BOLT_SPEED
+                    bolt.change_y = 0
+                elif self.player_sprite.angle == 270:
+                    bolt.center_x = self.player_sprite.center_x + 2
+                    bolt.center_y = self.player_sprite.center_y 
+                    bolt.change_x = BOLT_SPEED
+                    bolt.change_y = 0
+                self.bolt_list.append(bolt)
                 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-
-        if key == arcade.key.UP:
-            self.player_sprite.change_y = PLAYER_FLOAT
-        elif key == arcade.key.DOWN:
-            self.player_sprite.change_y = -PLAYER_FLOAT
-        elif key == arcade.key.LEFT:
-            self.player_sprite.change_x = -PLAYER_FLOAT
-        elif key == arcade.key.RIGHT:
+        if self.player_sprite.movable:
+            if key == arcade.key.UP:
+                self.player_sprite.change_y = PLAYER_FLOAT
+            elif key == arcade.key.DOWN:
+                self.player_sprite.change_y = -PLAYER_FLOAT
+            elif key == arcade.key.LEFT:
+                self.player_sprite.change_x = -PLAYER_FLOAT
+            elif key == arcade.key.RIGHT:
+                self.player_sprite.change_x = PLAYER_FLOAT
+        else:
             self.player_sprite.change_x = PLAYER_FLOAT
+            self.player_sprite.change_y = -PLAYER_FLOAT
 
 def main():
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
