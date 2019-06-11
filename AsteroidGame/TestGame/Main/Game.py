@@ -57,11 +57,14 @@ class MyGame(arcade.Window):
         for i in range(START_ASTEROID):
             
             # Asteroid Instance
-            asteroid_size = 1 + random.randrange(SPRITE_MAX_SCALING_ASTROID)
+            asteroid_size = SPRITE_MAX_SCALING_ASTROID
             asteroid = arcade.Sprite("Resources/asteroid.png", asteroid_size)
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_light_dmg.png"))
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_med_dmg.png"))
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_heavy_dmg.png"))
             
             # Asteroid Qualities
-            asteroid.health = 3*asteroid_size
+            asteroid.health = 5*asteroid_size
             # Placement
             while True: # Ensures asteroid not on player
                 asteroid.center_x = random.randrange(SCREEN_WIDTH)
@@ -112,7 +115,7 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: Fix minor bugs """
+        TODO: Fix minor bugs, have asteroids split when destroyed"""
         
         # Collision Checking for Asteroid and Player
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
@@ -166,6 +169,15 @@ class MyGame(arcade.Window):
                     asteroid_hit.health = asteroid_hit.health - 1
                     bolt.kill()
                     self.score = self.score + 1
+                    if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTROID):
+                        asteroid_hit.set_texture(3)
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
+                    elif asteroid_hit.health <= .5*(5*SPRITE_MAX_SCALING_ASTROID):
+                        asteroid_hit.set_texture(2)
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
+                    elif asteroid_hit.health <= .75*(5*SPRITE_MAX_SCALING_ASTROID):
+                        asteroid_hit.set_texture(1)
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
                 else:
                     asteroid_hit.kill()
                     bolt.kill()
@@ -180,11 +192,14 @@ class MyGame(arcade.Window):
         # Creation of More Asteroids When One Is Destroyed
         if self.numOfAsteroids < START_ASTEROID:
             # Asteroid Instance
-            asteroid_size = 1 + random.randrange(SPRITE_MAX_SCALING_ASTROID)
+            asteroid_size = SPRITE_MAX_SCALING_ASTROID
             asteroid = arcade.Sprite("Resources/asteroid.png", asteroid_size)
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_light_dmg.png"))
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_med_dmg.png"))
+            asteroid.append_texture(arcade.load_texture("Resources/asteroid_heavy_dmg.png"))
             
             # Asteroid Qualities
-            asteroid.health = 3*asteroid_size
+            asteroid.health = 5*asteroid_size
             
             # Placement
             while True: # Ensures asteroid not on player
