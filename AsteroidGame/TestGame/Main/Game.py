@@ -143,19 +143,27 @@ class MyGame(arcade.Window):
                     self.score = self.score + 1
                     if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(3)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
                     elif asteroid_hit.health <= .5*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(2)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
                     elif asteroid_hit.health <= .75*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(1)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
                 else:
-#                     # Splits asteroid into two unless it is of smallest size
-#                     if asteroid_hit.size > SPRITE_MAX_SCALING_ASTEROID/2:
-#                         self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
-#                             self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
-#                         
+                    # Splits asteroid into two unless it is of smallest size
+                    if asteroid_hit.scale > SPRITE_MAX_SCALING_ASTEROID/2:
+                        x1 = asteroid_hit.center_x + asteroid_hit.collision_radius/2
+                        y1 = asteroid_hit.center_y + asteroid_hit.collision_radius/2
+                        x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
+                        y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
+                        
+                        self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.numOfAsteroids, x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            
+                        self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.numOfAsteroids, x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            
                     asteroid_hit.kill()
                     bolt.kill()
                     self.numOfAsteroids = self.numOfAsteroids - 1

@@ -62,6 +62,36 @@ def createAsteroid(self, onEdge, asteroid_list, numOfAsteroids, SCREEN_HEIGHT, S
     
     return asteroid_list, numOfAsteroids
 
+def createMiniAsteroid(self, asteroid_list, numOfAsteroids, x, y, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED):
+    ''' Creates a small asteroid in place of the older large asteroid'''
+    # Asteroid Instance
+    asteroid_size = SPRITE_MAX_SCALING_ASTEROID/2
+    asteroid = arcade.Sprite("Resources/asteroid.png", asteroid_size)
+    asteroid.append_texture(arcade.load_texture("Resources/asteroid_light_dmg.png"))
+    asteroid.append_texture(arcade.load_texture("Resources/asteroid_med_dmg.png"))
+    asteroid.append_texture(arcade.load_texture("Resources/asteroid_heavy_dmg.png"))
+    
+    # Asteroid Qualities
+    asteroid.health = 5*asteroid_size
+    
+    # Placement
+    asteroid.center_x = x
+    asteroid.center_y = y
+    
+    # Initial direction
+    asteroid.change_x = 1 + random.randrange(MAX_ASTEROID_SPEED)
+    asteroid.change_y = 1 + random.randrange(MAX_ASTEROID_SPEED)
+    if random.randint(1,2) == 1:
+        asteroid.change_y = -asteroid.change_y
+    if random.randint(1,2) == 1:
+        asteroid.change_x = -asteroid.change_x
+                
+    # Adding to List
+    asteroid_list.append(asteroid)
+    numOfAsteroids = numOfAsteroids + 1
+    
+    return asteroid_list, numOfAsteroids
+
 def physics(asteroid,asteroid2):
     ''' Function which determines how asteroid collisions should be handled '''     
     # General "Head on Deflection"
