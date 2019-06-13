@@ -7,7 +7,8 @@ import random
 import arcade
 
 
-def createAsteroid(self, asteroid_list, numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED):
+def createAsteroid(self, onEdge, asteroid_list, numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH,
+                   SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED):
     ''' Creates a new asteroid and adds it to the asteroid list '''
     # Asteroid Instance
     asteroid_size = SPRITE_MAX_SCALING_ASTEROID
@@ -20,22 +21,32 @@ def createAsteroid(self, asteroid_list, numOfAsteroids, SCREEN_HEIGHT, SCREEN_WI
     asteroid.health = 5*asteroid_size
                 
     # Placement
-    while True: # Ensures asteroid not on player
-        if random.randint(1,2) == 1:
-            asteroid.center_x = random.randrange(SCREEN_WIDTH)
+    if onEdge is True: 
+        while True: # Ensures asteroid not on player
             if random.randint(1,2) == 1:
-                asteroid.center_y = SCREEN_HEIGHT-1
-            else:
-                asteroid.center_y = 1
-        else: 
-            asteroid.center_y = random.randrange(SCREEN_HEIGHT)
-            if random.randint(1,2) == 1:
-                asteroid.center_x = SCREEN_WIDTH - 1
-            else:
-                asteroid.center_x = 1
-        
-        if not isIn(asteroid, asteroid_list):
-            break
+                asteroid.center_x = random.randrange(SCREEN_WIDTH)
+                if random.randint(1,2) == 1:
+                    asteroid.center_y = SCREEN_HEIGHT-1
+                else:
+                    asteroid.center_y = 1
+            else: 
+                asteroid.center_y = random.randrange(SCREEN_HEIGHT)
+                if random.randint(1,2) == 1:
+                    asteroid.center_x = SCREEN_WIDTH - 1
+                else:
+                    asteroid.center_x = 1
+            
+            if not isIn(asteroid, asteroid_list):
+                break
+    else:
+        while True: # Ensures asteroid not on player
+                asteroid.center_x = random.randrange(SCREEN_WIDTH)
+                asteroid.center_y = random.randrange(SCREEN_HEIGHT)
+                
+                if (asteroid.center_x < 350 or asteroid.center_x > 450 \
+                or asteroid.center_y < 250 or asteroid.center_y > 350) \
+                and not isIn(asteroid, asteroid_list):
+                    break
     
     # Initial direction
     asteroid.change_x = 1 + random.randrange(MAX_ASTEROID_SPEED)
