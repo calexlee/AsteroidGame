@@ -16,7 +16,7 @@ SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
 START_ASTEROID = 1
-SPRITE_MAX_SCALING_ASTROID = 2
+SPRITE_MAX_SCALING_ASTEROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
 BOLT_SPEED = 7
@@ -57,7 +57,7 @@ class MyGame(arcade.Window):
         for i in range(START_ASTEROID):
             
             # Asteroid Instance
-            asteroid_size = SPRITE_MAX_SCALING_ASTROID
+            asteroid_size = SPRITE_MAX_SCALING_ASTEROID
             asteroid = arcade.Sprite("Resources/asteroid.png", asteroid_size)
             asteroid.append_texture(arcade.load_texture("Resources/asteroid_light_dmg.png"))
             asteroid.append_texture(arcade.load_texture("Resources/asteroid_med_dmg.png"))
@@ -169,16 +169,19 @@ class MyGame(arcade.Window):
                     asteroid_hit.health = asteroid_hit.health - 1
                     bolt.kill()
                     self.score = self.score + 1
-                    if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTROID):
+                    if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(3)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
-                    elif asteroid_hit.health <= .5*(5*SPRITE_MAX_SCALING_ASTROID):
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
+                    elif asteroid_hit.health <= .5*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(2)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
-                    elif asteroid_hit.health <= .75*(5*SPRITE_MAX_SCALING_ASTROID):
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
+                    elif asteroid_hit.health <= .75*(5*SPRITE_MAX_SCALING_ASTEROID):
                         asteroid_hit.set_texture(1)
-                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTROID)
+                        asteroid_hit._set_scale(SPRITE_MAX_SCALING_ASTEROID)
                 else:
+                    # Splits asteroid into two unless it is of smallest size
+                    #if asteroid_hit.size > SPRITE_MAX_SCALING_ASTEROID/2:
+                        
                     asteroid_hit.kill()
                     bolt.kill()
                     self.numOfAsteroids = self.numOfAsteroids - 1
@@ -191,45 +194,7 @@ class MyGame(arcade.Window):
         
         # Creation of More Asteroids When One Is Destroyed
         if self.numOfAsteroids < START_ASTEROID:
-            # Asteroid Instance
-            asteroid_size = SPRITE_MAX_SCALING_ASTROID
-            asteroid = arcade.Sprite("Resources/asteroid.png", asteroid_size)
-            asteroid.append_texture(arcade.load_texture("Resources/asteroid_light_dmg.png"))
-            asteroid.append_texture(arcade.load_texture("Resources/asteroid_med_dmg.png"))
-            asteroid.append_texture(arcade.load_texture("Resources/asteroid_heavy_dmg.png"))
-            
-            # Asteroid Qualities
-            asteroid.health = 5*asteroid_size
-            
-            # Placement
-            while True: # Ensures asteroid not on player
-                if random.randint(1,2) == 1:
-                    asteroid.center_x = random.randrange(SCREEN_WIDTH)
-                    if random.randint(1,2) == 1:
-                        asteroid.center_y = SCREEN_HEIGHT-1
-                    else:
-                        asteroid.center_y = 1
-                else: 
-                    asteroid.center_y = random.randrange(SCREEN_HEIGHT)
-                    if random.randint(1,2) == 1:
-                        asteroid.center_x = SCREEN_WIDTH - 1
-                    else:
-                        asteroid.center_x = 1
-                
-                if not Main.Asteroid.isIn(asteroid, self.asteroid_list):
-                    break
-
-            # Initial direction
-            asteroid.change_x = 1 + random.randrange(MAX_ASTEROID_SPEED)
-            asteroid.change_y = 1 + random.randrange(MAX_ASTEROID_SPEED)
-            if random.randint(1,2) == 1:
-                asteroid.change_y = -asteroid.change_y
-            if random.randint(1,2) == 1:
-                asteroid.change_x = -asteroid.change_x
-            
-            # Adding to List
-            self.asteroid_list.append(asteroid)
-            self.numOfAsteroids = self.numOfAsteroids + 1
+            self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, self.asteroid_list, self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
         
         self.physics_engine.update()
     
