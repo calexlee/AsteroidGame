@@ -7,6 +7,7 @@ Created on May 21, 2019
 import random
 import arcade 
 import Main.Asteroid
+import Main.Alien
 
 
 
@@ -15,7 +16,7 @@ SCREEN_HEIGHT = 600
 SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
-START_ASTEROID = 3
+START_ASTEROID = 4
 SPRITE_MAX_SCALING_ASTEROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
@@ -24,7 +25,7 @@ BOLT_SPEED = 7
 
 
 class MyGame(arcade.Window):
-    """ Main application class. TODO: Separate related blocks of code into separate file imports"""
+    """ Main application class."""
 
     def __init__(self, width, height):
         super().__init__(width, height)
@@ -40,11 +41,13 @@ class MyGame(arcade.Window):
         self.wall_list = arcade.SpriteList()
         self.asteroid_list = arcade.SpriteList()
         self.bolt_list = arcade.SpriteList()
+        self.alien_list = arcade.SpriteList()
         
         # Initial lives, Score and More
         self.lives = 3
         self.score = 0
         self.numOfAsteroids = 0
+        self.numOfAliens = 0
         
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
@@ -70,6 +73,7 @@ class MyGame(arcade.Window):
         self.player_list.draw()
         self.asteroid_list.draw()
         self.bolt_list.draw()
+        self.alien_list.draw()
         
         # Drawing of still objects
         start_x = 10
@@ -87,7 +91,7 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: Fix minor bugs, have asteroids split when destroyed"""
+        TODO: Fix minor bugs, have ship explode each life"""
         
         # Collision Checking for Asteroid and Player
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
@@ -103,6 +107,40 @@ class MyGame(arcade.Window):
                 self.player_sprite.movable = False
                 self.player_sprite.stop()
 
+        # Creation of Aliens (ultimately want to put on a timer)
+        spawn = random.randint(1,100)
+        
+        if spawn == 1:
+            self.alien_list, self.numOfAliens = Main.Alien.createAlien(MyGame, self.alien_list, self.numOfAliens, SCREEN_HEIGHT, SCREEN_WIDTH)
+        
+        # Alien Movement
+        for alien in self.alien_list:
+            alien.center_x = alien.center_x + alien.change_x
+            alien.center_y = alien.center_y + alien.change_y
+            # Aliens collide with asteroid
+            
+            # Alien shooting
+            degreeOfSpace = 3
+            if alien.center_x < self.player_sprite.center_x + degreeOfSpace and alien.center_x > self.player_sprite.center_x - degreeOfSpace and alien.center_y > self.player_sprite.center_y:
+                bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
+                bolt.center_x = alien.center_x 
+                bolt.center_y = alien.center_y - 20
+                bolt.change_x = 3
+                bolt.change_y = -BOLT_SPEED*.5
+                self.bolt_list.append(bolt)
+            
+            # Off Screen
+            if alien.center_x > SCREEN_WIDTH:
+                alien.center_x = 1
+            
+            if alien.center_x < 0:
+                alien.center_x = SCREEN_WIDTH - 1
+            
+            if alien.center_y > SCREEN_HEIGHT:
+                alien.kill()
+                
+            if alien.center_y < 0:
+                alien.kill()
         
         # Asteroid Movement
         for asteroid in self.asteroid_list:
@@ -132,6 +170,14 @@ class MyGame(arcade.Window):
         for bolt in self.bolt_list:
             bolt.center_x = bolt.center_x + bolt.change_x
             bolt.center_y = bolt.center_y + bolt.change_y
+            
+            # Collision with alien
+            bolt_hit_list = arcade.check_for_collision_with_list(bolt,self.alien_list)
+            for alien_hit in bolt_hit_list:
+                alien_hit.kill()
+                bolt.kill()
+                self.numOfAliens = self.numOfAliens - 1
+                self.score = self.score + 50
             
             # Collision with asteroid
             bolt_hit_list = arcade.check_for_collision_with_list(bolt,self.asteroid_list)
