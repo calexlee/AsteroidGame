@@ -136,7 +136,7 @@ class MyGame(arcade.Window):
             # Alien shooting
             degreeOfSpace = 3
             if alien.center_x < self.player_sprite.center_x + degreeOfSpace and alien.center_x > self.player_sprite.center_x - degreeOfSpace and alien.center_y > self.player_sprite.center_y:
-                bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
+                bolt = arcade.Sprite("Resources/alienbolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
                 bolt.center_x = alien.center_x 
                 bolt.center_y = alien.center_y - 20
                 bolt.change_x = 0
