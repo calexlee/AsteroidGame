@@ -16,7 +16,7 @@ SCREEN_HEIGHT = 768
 SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
-START_ASTEROID = 4
+START_ASTEROID = 10
 SPRITE_MAX_SCALING_ASTEROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
@@ -162,8 +162,6 @@ class MyGame(arcade.Window):
             asteroid.center_x = asteroid.center_x + asteroid.change_x
             asteroid.center_y = asteroid.center_y + asteroid.change_y
             asteroid_hit_list = arcade.check_for_collision_with_list(asteroid,self.asteroid_list)
-            
-            #Checks for misbehaving asteroids
                 
             # Collision between asteroid physics
             for asteroid2 in asteroid_hit_list:
