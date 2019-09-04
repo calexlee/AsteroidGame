@@ -93,9 +93,10 @@ class MyGame(arcade.Window):
         """ All the logic to move, and the game logic goes here. 
         TODO: Fix minor bugs, have ship explode each life"""
         
-        # Collision Checking for Asteroid and Player
+        # Collision Checking for Asteroid and Player, and bolt and player
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
-        for i in hit_list:
+        bolt_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bolt_list)
+        if hit_list or bolt_hit_list:
             if self.lives > 1:
                 self.player_sprite.center_x = 400
                 self.player_sprite.center_y = 300
@@ -118,6 +119,10 @@ class MyGame(arcade.Window):
             alien.center_x = alien.center_x + alien.change_x
             alien.center_y = alien.center_y + alien.change_y
             # Aliens collide with asteroid
+            alien_hit_list = arcade.check_for_collision_with_list(alien, self.asteroid_list)
+            if alien_hit_list:
+                #TODO: Add result of alien death
+                alien.kill()
             
             # Alien shooting
             degreeOfSpace = 3
@@ -249,23 +254,25 @@ class MyGame(arcade.Window):
             #Shooting 
             if key == arcade.key.SPACE:
                 bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
+                boltDistFromPlayer = 25
+                
                 if self.player_sprite.angle == 0:
                     bolt.center_x = self.player_sprite.center_x
-                    bolt.center_y = self.player_sprite.center_y + 2
+                    bolt.center_y = self.player_sprite.center_y + boltDistFromPlayer
                     bolt.change_x = 0
                     bolt.change_y = BOLT_SPEED
                 elif self.player_sprite.angle == 180:
                     bolt.center_x = self.player_sprite.center_x
-                    bolt.center_y = self.player_sprite.center_y - 2
+                    bolt.center_y = self.player_sprite.center_y - boltDistFromPlayer
                     bolt.change_x = 0
                     bolt.change_y = -BOLT_SPEED
                 elif self.player_sprite.angle == 90:
-                    bolt.center_x = self.player_sprite.center_x - 2
+                    bolt.center_x = self.player_sprite.center_x - boltDistFromPlayer
                     bolt.center_y = self.player_sprite.center_y 
                     bolt.change_x = -BOLT_SPEED
                     bolt.change_y = 0
                 elif self.player_sprite.angle == 270:
-                    bolt.center_x = self.player_sprite.center_x + 2
+                    bolt.center_x = self.player_sprite.center_x + boltDistFromPlayer
                     bolt.center_y = self.player_sprite.center_y 
                     bolt.change_x = BOLT_SPEED
                     bolt.change_y = 0
