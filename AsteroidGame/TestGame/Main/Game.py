@@ -239,6 +239,27 @@ class MyGame(arcade.Window):
                 bolt.kill()
                 
         for laser in self.laser_list:
+            # Movement
+            laserDistFromPlayer = laser.height/2 + 25
+            if self.player_sprite.angle == 0:
+                laser.center_x = self.player_sprite.center_x
+                laser.center_y = self.player_sprite.center_y + laserDistFromPlayer
+                laser.angle = 0
+
+            elif self.player_sprite.angle == 180:
+                laser.center_x = self.player_sprite.center_x
+                laser.center_y = self.player_sprite.center_y - laserDistFromPlayer
+                laser.angle = 180
+
+            elif self.player_sprite.angle == 90:
+                laser.center_x = self.player_sprite.center_x - laserDistFromPlayer
+                laser.center_y = self.player_sprite.center_y
+                laser.angle = 90
+
+            elif self.player_sprite.angle == 270:
+                laser.center_x = self.player_sprite.center_x + laserDistFromPlayer
+                laser.center_y = self.player_sprite.center_y 
+                laser.angle = 270
             
             # Collision with alien
             laser_hit_list = arcade.check_for_collision_with_list(laser,self.alien_list)
