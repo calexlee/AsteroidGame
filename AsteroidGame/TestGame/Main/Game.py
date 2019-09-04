@@ -93,10 +93,11 @@ class MyGame(arcade.Window):
         """ All the logic to move, and the game logic goes here. 
         TODO: Fix minor bugs, have ship explode each life"""
         
-        # Collision Checking for Asteroid and Player, and bolt and player
+        # Collision Checking for Asteroid and Player, and bolt and player, and alien and player
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
         bolt_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bolt_list)
-        if hit_list or bolt_hit_list:
+        alien_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.alien_list)
+        if hit_list or bolt_hit_list or alien_hit_list:
             if self.lives > 1:
                 self.player_sprite.center_x = SCREEN_WIDTH/2
                 self.player_sprite.center_y = SCREEN_HEIGHT/2
