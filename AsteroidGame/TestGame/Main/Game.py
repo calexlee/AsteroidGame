@@ -16,11 +16,12 @@ SCREEN_HEIGHT = 768
 SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
-START_ASTEROID = 10
+START_ASTEROID = 4
 SPRITE_MAX_SCALING_ASTEROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
 BOLT_SPEED = 7
+SPRITE_SCALING_LASER = 0.2
 
 
 
@@ -41,6 +42,7 @@ class MyGame(arcade.Window):
         self.wall_list = arcade.SpriteList()
         self.asteroid_list = arcade.SpriteList()
         self.bolt_list = arcade.SpriteList()
+        self.laser_list = arcade.SpriteList()
         self.alien_list = arcade.SpriteList()
         
         # Initial lives, Score and More
@@ -74,6 +76,7 @@ class MyGame(arcade.Window):
         self.asteroid_list.draw()
         self.bolt_list.draw()
         self.alien_list.draw()
+        self.laser_list.draw()
         
         # Drawing of still objects
         start_x = 60
@@ -110,7 +113,7 @@ class MyGame(arcade.Window):
                 self.player_sprite.stop()
 
         # Creation of Aliens (ultimately want to put on a timer)
-        spawn = random.randint(1,100)
+        spawn = random.randint(1,200)
         
         if spawn == 1:
             alienType = random.randint(1,3)
@@ -234,7 +237,62 @@ class MyGame(arcade.Window):
             if bolt.center_x > SCREEN_WIDTH or bolt.center_x < 0 \
             or bolt.center_y > SCREEN_HEIGHT or bolt.center_y < 0:
                 bolt.kill()
-        
+                
+        for laser in self.laser_list:
+            
+            # Collision with alien
+            laser_hit_list = arcade.check_for_collision_with_list(laser,self.alien_list)
+            for alien_hit in laser_hit_list:
+                alien_hit.kill()
+                laser.health = laser.health - 1
+                self.numOfAliens = self.numOfAliens - 1
+                self.score = self.score + 50
+                if laser.health <= 0:
+                    laser.kill()
+            
+            # Collision with asteroid
+            laser_hit_list = arcade.check_for_collision_with_list(laser,self.asteroid_list)
+            for asteroid_hit in laser_hit_list:
+                    
+                if asteroid_hit.health > 1:
+                    asteroid_hit.health = asteroid_hit.health - 1
+                    laser.health = laser.health - 1
+                    if laser.health <= 0:
+                        laser.kill()
+                    self.score = self.score + 1
+                    if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTEROID):
+                        asteroid_hit.set_texture(3)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
+                    elif asteroid_hit.health <= .5*(5*SPRITE_MAX_SCALING_ASTEROID):
+                        asteroid_hit.set_texture(2)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
+                    elif asteroid_hit.health <= .75*(5*SPRITE_MAX_SCALING_ASTEROID):
+                        asteroid_hit.set_texture(1)
+                        asteroid_hit._set_scale(asteroid_hit.scale)
+                else:
+                    # Splits asteroid into two unless it is of smallest size
+                    if asteroid_hit.scale > SPRITE_MAX_SCALING_ASTEROID/2:
+                        x1 = asteroid_hit.center_x + asteroid_hit.collision_radius/2
+                        y1 = asteroid_hit.center_y + asteroid_hit.collision_radius/2
+                        x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
+                        y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
+                        
+                        self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.numOfAsteroids, x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            
+                        self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.numOfAsteroids, x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            
+                    asteroid_hit.kill()
+                    laser.health = laser.health - 1
+                    if laser.health <= 0:
+                        laser.kill()
+                    self.numOfAsteroids = self.numOfAsteroids - 1
+                    self.score = self.score + 10
+            # Laser Decay
+            laser.health = laser.health - 1
+            if laser.health <= 0:
+                laser.kill()
         # Creation of More Asteroids When One Is Destroyed
         if self.numOfAsteroids < START_ASTEROID:
             self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
@@ -261,7 +319,7 @@ class MyGame(arcade.Window):
                 self.player_sprite.change_x = MOVEMENT_SPEED
                 self.player_sprite.angle = 270
                 
-            #Shooting 
+            #General Shooting 
             if key == arcade.key.SPACE:
                 bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
                 boltDistFromPlayer = 25
@@ -287,6 +345,33 @@ class MyGame(arcade.Window):
                     bolt.change_x = BOLT_SPEED
                     bolt.change_y = 0
                 self.bolt_list.append(bolt)
+                
+            #Special Shooting
+            if key == arcade.key.Q:
+                laser = arcade.Sprite("Resources/laser.png", SPRITE_SCALING_LASER)
+                laser.health = 10
+                laser.height = SCREEN_HEIGHT/2
+                laserDistFromPlayer = laser.height/2 + 25
+                
+                if self.player_sprite.angle == 0:
+                    laser.center_x = self.player_sprite.center_x
+                    laser.center_y = self.player_sprite.center_y + laserDistFromPlayer
+
+                elif self.player_sprite.angle == 180:
+                    laser.center_x = self.player_sprite.center_x
+                    laser.center_y = self.player_sprite.center_y - laserDistFromPlayer
+
+                elif self.player_sprite.angle == 90:
+                    laser.center_x = self.player_sprite.center_x - laserDistFromPlayer
+                    laser.center_y = self.player_sprite.center_y
+                    laser.angle = 90
+
+                elif self.player_sprite.angle == 270:
+                    laser.center_x = self.player_sprite.center_x + laserDistFromPlayer
+                    laser.center_y = self.player_sprite.center_y 
+                    laser.angle = 270
+
+                self.laser_list.append(laser)
                 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
