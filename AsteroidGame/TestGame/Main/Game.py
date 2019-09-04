@@ -11,8 +11,8 @@ import Main.Alien
 
 
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 768
 SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
@@ -52,8 +52,8 @@ class MyGame(arcade.Window):
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
-        self.player_sprite.center_x = 400
-        self.player_sprite.center_y = 300
+        self.player_sprite.center_x = SCREEN_WIDTH/2
+        self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_sprite.movable = True
         self.player_list.append(self.player_sprite)
         
@@ -76,17 +76,17 @@ class MyGame(arcade.Window):
         self.alien_list.draw()
         
         # Drawing of still objects
-        start_x = 10
-        start_y = 580
+        start_x = 60
+        start_y = SCREEN_HEIGHT-20
         arcade.draw_text(f"Score: {self.score}", start_x, start_y, arcade.color.WHITE)
         start_x = 10
-        start_y = 565
+        start_y = SCREEN_HEIGHT-20
         arcade.draw_text(f"Lives: {self.lives}",start_x,start_y, arcade.color.WHITE)
         
         # GAME OVER text
         if self.lives < 1:
-            start_x = 300
-            start_y = 300
+            start_x = SCREEN_WIDTH/2.65
+            start_y = SCREEN_HEIGHT/2
             arcade.draw_text("GAME OVER",start_x, start_y, arcade.color.WHITE, 60, 1000)
 
     def update(self, delta_time):
@@ -98,8 +98,8 @@ class MyGame(arcade.Window):
         bolt_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bolt_list)
         if hit_list or bolt_hit_list:
             if self.lives > 1:
-                self.player_sprite.center_x = 400
-                self.player_sprite.center_y = 300
+                self.player_sprite.center_x = SCREEN_WIDTH/2
+                self.player_sprite.center_y = SCREEN_HEIGHT/2
                 self.lives = self.lives - 1
                 self.score = self.score - 100
             else:
@@ -112,12 +112,21 @@ class MyGame(arcade.Window):
         spawn = random.randint(1,100)
         
         if spawn == 1:
-            self.alien_list, self.numOfAliens = Main.Alien.createAlien(MyGame, self.alien_list, self.numOfAliens, SCREEN_HEIGHT, SCREEN_WIDTH)
+            alienType = random.randint(1,3)
+            self.alien_list, self.numOfAliens = Main.Alien.createAlien(MyGame, self.alien_list, self.numOfAliens, alienType, SCREEN_HEIGHT, SCREEN_WIDTH)
         
         # Alien Movement
         for alien in self.alien_list:
             alien.center_x = alien.center_x + alien.change_x
             alien.center_y = alien.center_y + alien.change_y
+            
+            #Alien 3 follow pattern
+            if alien.type == 3:
+                if self.player_sprite.center_x > alien.center_x:
+                    alien.change_x = 2
+                elif self.player_sprite.center_x < alien.center_x:
+                    alien.change_x = -2
+            
             # Aliens collide with asteroid
             alien_hit_list = arcade.check_for_collision_with_list(alien, self.asteroid_list)
             if alien_hit_list:
@@ -130,7 +139,7 @@ class MyGame(arcade.Window):
                 bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
                 bolt.center_x = alien.center_x 
                 bolt.center_y = alien.center_y - 20
-                bolt.change_x = 3
+                bolt.change_x = 0
                 bolt.change_y = -BOLT_SPEED*.5
                 self.bolt_list.append(bolt)
             
@@ -152,6 +161,8 @@ class MyGame(arcade.Window):
             asteroid.center_x = asteroid.center_x + asteroid.change_x
             asteroid.center_y = asteroid.center_y + asteroid.change_y
             asteroid_hit_list = arcade.check_for_collision_with_list(asteroid,self.asteroid_list)
+            
+            #Checks for misbehaving asteroids
                 
             # Collision between asteroid physics
             for asteroid2 in asteroid_hit_list:
@@ -159,17 +170,17 @@ class MyGame(arcade.Window):
                     Main.Asteroid.physics(asteroid,asteroid2)
                     
             # Off Screen 
-            if asteroid.center_x > SCREEN_WIDTH:
-                asteroid.center_x = 1
+            if asteroid.center_x-asteroid.collision_radius > SCREEN_WIDTH:
+                asteroid.center_x = 10-asteroid.collision_radius
                 
-            if asteroid.center_x < 0: 
-                asteroid.center_x = SCREEN_WIDTH - 1
+            if asteroid.center_x + asteroid.collision_radius < 0: 
+                asteroid.center_x = SCREEN_WIDTH +asteroid.collision_radius
             
-            if asteroid.center_y > SCREEN_HEIGHT:
-                asteroid.center_y = 1
+            if asteroid.center_y - asteroid.collision_radius > SCREEN_HEIGHT:
+                asteroid.center_y = 10-asteroid.collision_radius
                 
-            if asteroid.center_y < 0:
-                asteroid.center_y = SCREEN_HEIGHT - 1
+            if asteroid.center_y + asteroid.collision_radius < 0:
+                asteroid.center_y = SCREEN_HEIGHT + asteroid.collision_radius
                 
         # Bolt Movement
         for bolt in self.bolt_list:

@@ -114,17 +114,17 @@ def physics(asteroid,asteroid2):
             asteroid.change_x = -asteroid.change_x
             
 def isIn(asteroid,asteroid_list):
-    '''Determines in an asteroid is inside the radius of another asteroid in the list'''
+    '''Determines if an asteroid is inside the radius of another asteroid in the list'''
     for asteroid2 in asteroid_list:
         if asteroid.center_x + asteroid.collision_radius > asteroid2.center_x - asteroid2.collision_radius and \
         asteroid.center_x - asteroid.collision_radius < asteroid2.center_x + asteroid2.collision_radius and \
         asteroid.center_y + asteroid.collision_radius > asteroid2.center_y - asteroid2.collision_radius and \
-        asteroid.center_y - asteroid.collision_radius < asteroid2.center_y + asteroid2.collision_radius:
+        asteroid.center_y - asteroid.collision_radius < asteroid2.center_y + asteroid2.collision_radius and asteroid2 != asteroid:
             return True
     return False
 
 def isIn2(asteroid,asteroid_list):
-    '''Determines in an asteroid is inside the radius of another asteroid in the list,
+    '''Determines if an asteroid is inside the radius of another asteroid in the list,
     and returns the asteroid that it is stuck inside'''
     for asteroid2 in asteroid_list:
         if asteroid.center_x + asteroid.collision_radius > asteroid2.center_x - asteroid2.collision_radius and \
@@ -134,6 +134,7 @@ def isIn2(asteroid,asteroid_list):
             return asteroid2
     return False
         
-def unstick(asteroid, ):
+def unstick():
     '''If Needed create a function that pushes apart asteroids that become stuck together'''
+    
     pass
