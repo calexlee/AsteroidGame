@@ -8,7 +8,7 @@ import random
 import arcade 
 import Main.Asteroid
 import Main.Alien
-
+import Main.Powerup
 
 
 SCREEN_WIDTH = 1024
@@ -42,7 +42,7 @@ class MyGame(arcade.Window):
 
     def setup(self):
         """ Game Setup and Variable Initialization 
-        TODO: Create more enemies and perhaps a menu screen beforehand"""
+        TODO: Create more enemies and Make the title screen nicer"""
         
         # Create the initial object lists
         self.player_list = arcade.SpriteList()
@@ -51,16 +51,20 @@ class MyGame(arcade.Window):
         self.bolt_list = arcade.SpriteList()
         self.laser_list = arcade.SpriteList()
         self.alien_list = arcade.SpriteList()
+        self.powerup_list = arcade.SpriteList()
         
         # Initial lives, Score and More
         self.lives = 3
         self.score = 0
         self.numOfAsteroids = 0
         self.numOfAliens = 0
+        self.numOfPow = 0
+        self.laser = False
         
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
+        self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-laser.png"))
         self.player_sprite.center_x = SCREEN_WIDTH/2
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_sprite.movable = True
@@ -105,6 +109,7 @@ class MyGame(arcade.Window):
         self.bolt_list.draw()
         self.alien_list.draw()
         self.laser_list.draw()
+        self.powerup_list.draw()
         
         # Drawing of still objects
         start_x = 60
@@ -132,12 +137,15 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: have ship explode each life"""
+        TODO: have ship explode each life, more intuitive level design (game gets harder as time progresses)"""
+        
         if self.current_state == GAME_RUNNING:
             # Collision Checking for Asteroid and Player, and bolt and player, and alien and player
             hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
             bolt_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bolt_list)
             alien_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.alien_list)
+            
+            
             if hit_list or bolt_hit_list or alien_hit_list:
                 if self.lives > 1:
                     self.player_sprite.center_x = SCREEN_WIDTH/2
@@ -145,12 +153,28 @@ class MyGame(arcade.Window):
                     self.lives = self.lives - 1
                     self.score = self.score - 100
                 else:
-                    self.lives = self.lives - 1 
+                    self.lives = 0
                     self.player_sprite.set_texture(1)
                     self.player_sprite.movable = False
                     self.player_sprite.stop()
                     self.current_state = GAME_OVER
-                    
+
+            
+            # Creation of Powerups
+            if self.numOfPow < 1 and random.randint(1,100) < 50:
+                powType = 1
+                self.numOfPow = self.numOfPow + 1
+                self.powerup_list = Main.Powerup.createPowerUp(self,self.powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH)
+            
+            pow_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.powerup_list)
+            
+            for pow in pow_hit_list:
+                # Dealing with collision with player
+                pow.kill()
+                self.numOfPow = 0
+                self.player_sprite.set_texture(2)
+                self.laser = True
+                
     
             # Creation of Aliens (ultimately want to put on a timer)
             spawn = random.randint(1,200)
@@ -354,6 +378,8 @@ class MyGame(arcade.Window):
                 laser.health = laser.health - 1
                 if laser.health <= 0:
                     laser.kill()
+                    self.laser = False
+                    
             # Creation of More Asteroids When One Is Destroyed
             if self.numOfAsteroids < START_ASTEROID:
                 self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
@@ -374,6 +400,7 @@ class MyGame(arcade.Window):
             # Restarts after death
                 self.setup()
                 self.current_state = GAME_RUNNING
+                
         if self.current_state == GAME_RUNNING:
             # Movement
             if self.player_sprite.movable:
@@ -391,7 +418,7 @@ class MyGame(arcade.Window):
                     self.player_sprite.angle = 270
                 
                 # General Shooting 
-                if key == arcade.key.SPACE:
+                if key == arcade.key.SPACE and self.laser == False:
                     bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
                     boltDistFromPlayer = 25
                     
@@ -416,13 +443,14 @@ class MyGame(arcade.Window):
                         bolt.change_x = BOLT_SPEED
                         bolt.change_y = 0
                     self.bolt_list.append(bolt)
-                    
-                # Special Shooting
-                if key == arcade.key.Q:
+                elif key == arcade.key.SPACE and self.laser == True:
+                    # Special Shooting (LASER)
+
                     laser = arcade.Sprite("Resources/laser.png", SPRITE_SCALING_LASER)
-                    laser.health = 10
+                    laser.health = 30
                     laser.height = SCREEN_HEIGHT / 2
                     laserDistFromPlayer = laser.height / 2 + 25
+                    self.player_sprite.set_texture(0)
                     
                     if self.player_sprite.angle == 0:
                         laser.center_x = self.player_sprite.center_x

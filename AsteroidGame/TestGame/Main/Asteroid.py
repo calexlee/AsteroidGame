@@ -93,7 +93,9 @@ def createMiniAsteroid(self, asteroid_list, numOfAsteroids, x, y, SPRITE_MAX_SCA
     return asteroid_list, numOfAsteroids
 
 def physics(asteroid,asteroid2):
-    ''' Function which determines how asteroid collisions should be handled '''     
+    ''' Function which determines how asteroid collisions should be handled
+        TODO: Make the movement make actual sense '''
+         
     # General "Head on Deflection"
     asteroid.change_x = -asteroid.change_x*(1 +random.randrange(1))
     asteroid.change_y = -asteroid.change_y*(1 +random.randrange(1))

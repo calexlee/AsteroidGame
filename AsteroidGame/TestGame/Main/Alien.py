@@ -1,7 +1,7 @@
 '''
 Created on Jul 15, 2019
 
-TODO: implement the alien object
+TODO: make aliens more interesting
 
 @author: Alex
 '''
