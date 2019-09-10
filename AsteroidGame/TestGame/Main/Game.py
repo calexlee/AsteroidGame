@@ -137,7 +137,8 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: have ship explode each life, more intuitive level design (game gets harder as time progresses)"""
+        TODO: have ship explode each life, more intuitive level design (game gets harder as time progresses), 
+        player invulnerability on respawn"""
         
         if self.current_state == GAME_RUNNING:
             # Collision Checking for Asteroid and Player, and bolt and player, and alien and player
@@ -180,7 +181,7 @@ class MyGame(arcade.Window):
             spawn = random.randint(1,200)
             
             if spawn == 1:
-                alienType = random.randint(1,3)
+                alienType = random.randint(1,4)
                 self.alien_list, self.numOfAliens = Main.Alien.createAlien(MyGame, self.alien_list, self.numOfAliens, alienType, SCREEN_HEIGHT, SCREEN_WIDTH)
             
             # Alien Movement
@@ -204,12 +205,22 @@ class MyGame(arcade.Window):
                 # Alien shooting
                 degreeOfSpace = 3
                 if alien.center_x < self.player_sprite.center_x + degreeOfSpace and alien.center_x > self.player_sprite.center_x - degreeOfSpace and alien.center_y > self.player_sprite.center_y:
-                    bolt = arcade.Sprite("Resources/alienbolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
-                    bolt.center_x = alien.center_x 
-                    bolt.center_y = alien.center_y - 20
-                    bolt.change_x = 0
-                    bolt.change_y = -BOLT_SPEED*.5
-                    self.bolt_list.append(bolt)
+                    if alien.type <= 3:
+                        bolt = arcade.Sprite("Resources/alienbolt.png", SPRITE_SCALING_BOLT) # change to alien bolt
+                        bolt.type = 0
+                        bolt.center_x = alien.center_x 
+                        bolt.center_y = alien.center_y - 20
+                        bolt.change_x = 0
+                        bolt.change_y = -BOLT_SPEED*.65
+                        self.bolt_list.append(bolt)
+                    if alien.type == 4:
+                        bolt = arcade.Sprite("Resources/alienbolt.png", 5*SPRITE_SCALING_BOLT) # change to alien bolt
+                        bolt.type = 1
+                        bolt.center_x = alien.center_x 
+                        bolt.center_y = alien.center_y - 60
+                        bolt.change_x = 0
+                        bolt.change_y = -BOLT_SPEED*.35
+                        self.bolt_list.append(bolt)
                 
                 # Off Screen
                 if alien.center_x > SCREEN_WIDTH:
@@ -266,7 +277,11 @@ class MyGame(arcade.Window):
                 for asteroid_hit in bolt_hit_list:
                         
                     if asteroid_hit.health > 1:
-                        asteroid_hit.health = asteroid_hit.health - 1
+                        if bolt.type == 0:
+                            asteroid_hit.health = asteroid_hit.health - 1
+                        elif bolt.type == 1:
+                            asteroid_hit.health = asteroid_hit.health - 75
+                        
                         bolt.kill()
                         self.score = self.score + 1
                         if asteroid_hit.health <= .25*(5*SPRITE_MAX_SCALING_ASTEROID):
@@ -392,7 +407,7 @@ class MyGame(arcade.Window):
         TODO: More dynamic attacks/interactions"""
         if self.current_state == TITLE_SCREEN:
             if key == arcade.key.SPACE:
-            # Starts the game intially
+            # Starts the game initially
                 self.setup()
                 self.current_state = GAME_RUNNING
         elif self.current_state == GAME_OVER:
@@ -421,6 +436,7 @@ class MyGame(arcade.Window):
                 if key == arcade.key.SPACE and self.laser == False:
                     bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
                     boltDistFromPlayer = 25
+                    bolt.type = 0
                     
                     if self.player_sprite.angle == 0:
                         bolt.center_x = self.player_sprite.center_x
@@ -472,6 +488,33 @@ class MyGame(arcade.Window):
     
                     self.laser_list.append(laser)
                 
+                if key == arcade.key.Q:
+                    bolt = arcade.Sprite("Resources/bolt.png", 4*SPRITE_SCALING_BOLT)
+                    boltDistFromPlayer = 50
+                    bolt.type = 1
+                    
+                    if self.player_sprite.angle == 0:
+                        bolt.center_x = self.player_sprite.center_x
+                        bolt.center_y = self.player_sprite.center_y + boltDistFromPlayer
+                        bolt.change_x = 0
+                        bolt.change_y = 0.5*BOLT_SPEED
+                    elif self.player_sprite.angle == 180:
+                        bolt.center_x = self.player_sprite.center_x
+                        bolt.center_y = self.player_sprite.center_y - boltDistFromPlayer
+                        bolt.change_x = 0
+                        bolt.change_y = -0.5*BOLT_SPEED
+                    elif self.player_sprite.angle == 90:
+                        bolt.center_x = self.player_sprite.center_x - boltDistFromPlayer
+                        bolt.center_y = self.player_sprite.center_y 
+                        bolt.change_x = -0.5*BOLT_SPEED
+                        bolt.change_y = 0
+                    elif self.player_sprite.angle == 270:
+                        bolt.center_x = self.player_sprite.center_x + boltDistFromPlayer
+                        bolt.center_y = self.player_sprite.center_y 
+                        bolt.change_x = 0.5*BOLT_SPEED
+                        bolt.change_y = 0
+                    self.bolt_list.append(bolt)
+                    
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
         if self.current_state == GAME_RUNNING:

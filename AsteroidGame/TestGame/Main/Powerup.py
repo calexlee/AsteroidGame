@@ -11,7 +11,8 @@ import arcade
 
 
 def createPowerUp(self, powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH):
-    ''' Creates a new powerup and adds it to the list (game)'''
+    ''' Creates a new powerup and adds it to the list (game)
+        TODO: More powerups!'''
     
     pow_size = 0.75
     
