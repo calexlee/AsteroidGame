@@ -140,7 +140,7 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. 
-        TODO: have ship explode each life, more intuitive level design (game gets harder as time progresses), 
+        TODO: have ship explode each life, balance level design 
         player invulnerability on respawn"""
         
         if self.current_state == GAME_RUNNING:
@@ -165,7 +165,7 @@ class MyGame(arcade.Window):
 
             
             # Creation of Powerups
-            if self.numOfPow < 1 and random.randint(1,1000) < 50:
+            if self.numOfPow < 1 and random.randint(1,10000) < 50:
                 powType = 1
                 self.numOfPow = self.numOfPow + 1
                 self.powerup_list = Main.Powerup.createPowerUp(self,self.powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH)
@@ -187,7 +187,12 @@ class MyGame(arcade.Window):
                         self.pow = True
     
             # Creation of Aliens (ultimately want to put on a timer)
-            spawn = random.randint(1,200)
+            if self.score < 250:
+                spawn = random.randint(1,200)
+            elif self.score < 500:
+                spawn = random.randint(1,100)
+            else: 
+                spawn = random.randint(1,50)
             
             if spawn == 1:
                 alienType = random.randint(1,4)
@@ -387,11 +392,12 @@ class MyGame(arcade.Window):
                             x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
                             y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
                             
-                            self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
-                                self.numOfAsteroids, x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                                 x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                                 
-                            self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
-                                self.numOfAsteroids, x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                                x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.numOfAsteroids = self.numOfAsteroids + 2
                                 
                         asteroid_hit.kill()
                         laser.health = laser.health - 1
@@ -407,7 +413,9 @@ class MyGame(arcade.Window):
                     self.pow = False
                     
             # Creation of More Asteroids When One Is Destroyed
-            if self.numOfAsteroids < START_ASTEROID:
+            extraAsteroid = round(self.score/200)  
+            
+            if self.numOfAsteroids < START_ASTEROID + extraAsteroid:
                 self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
                     self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
              
