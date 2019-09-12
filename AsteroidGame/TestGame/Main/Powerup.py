@@ -17,10 +17,14 @@ def createPowerUp(self, powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH):
     pow_size = 0.75
     
     # Determines type of powerup
+    powType = random.randint(1,2)
+    
     if powType == 1:
         powerUp = arcade.Sprite("Resources/powerup-laser.png",pow_size)
-    else:
-        pass
+        powerUp.type = 1
+    elif powType == 2:
+        powerUp = arcade.Sprite("Resources/powerup-bb.png",pow_size)
+        powerUp.type = 2
     
     
     # Placement

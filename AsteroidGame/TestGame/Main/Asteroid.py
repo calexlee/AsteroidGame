@@ -62,7 +62,7 @@ def createAsteroid(self, onEdge, asteroid_list, numOfAsteroids, SCREEN_HEIGHT, S
     
     return asteroid_list, numOfAsteroids
 
-def createMiniAsteroid(self, asteroid_list, numOfAsteroids, x, y, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED):
+def createMiniAsteroid(self, asteroid_list, x, y, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED):
     ''' Creates a small asteroid in place of the older large asteroid'''
     # Asteroid Instance
     asteroid_size = SPRITE_MAX_SCALING_ASTEROID/2
@@ -88,9 +88,8 @@ def createMiniAsteroid(self, asteroid_list, numOfAsteroids, x, y, SPRITE_MAX_SCA
                 
     # Adding to List
     asteroid_list.append(asteroid)
-    numOfAsteroids = numOfAsteroids + 1
     
-    return asteroid_list, numOfAsteroids
+    return asteroid_list
 
 def physics(asteroid,asteroid2):
     ''' Function which determines how asteroid collisions should be handled

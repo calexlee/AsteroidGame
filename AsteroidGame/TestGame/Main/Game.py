@@ -60,11 +60,14 @@ class MyGame(arcade.Window):
         self.numOfAliens = 0
         self.numOfPow = 0
         self.laser = False
+        self.bb = 0
+        self.pow = False
         
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
         self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-laser.png"))
+        self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-bb.png"))
         self.player_sprite.center_x = SCREEN_WIDTH/2
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_sprite.movable = True
@@ -162,7 +165,7 @@ class MyGame(arcade.Window):
 
             
             # Creation of Powerups
-            if self.numOfPow < 1 and random.randint(1,100) < 50:
+            if self.numOfPow < 1 and random.randint(1,1000) < 50:
                 powType = 1
                 self.numOfPow = self.numOfPow + 1
                 self.powerup_list = Main.Powerup.createPowerUp(self,self.powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH)
@@ -171,11 +174,17 @@ class MyGame(arcade.Window):
             
             for pow in pow_hit_list:
                 # Dealing with collision with player
-                pow.kill()
-                self.numOfPow = 0
-                self.player_sprite.set_texture(2)
-                self.laser = True
-                
+                if self.pow == False:
+                    pow.kill()
+                    self.numOfPow = 0
+                    if pow.type == 1:
+                        self.player_sprite.set_texture(2)
+                        self.laser = True
+                        self.pow = True
+                    elif pow.type == 2:
+                        self.player_sprite.set_texture(3)
+                        self.bb = 4
+                        self.pow = True
     
             # Creation of Aliens (ultimately want to put on a timer)
             spawn = random.randint(1,200)
@@ -196,11 +205,11 @@ class MyGame(arcade.Window):
                     elif self.player_sprite.center_x < alien.center_x:
                         alien.change_x = -2
                 
-                # Aliens collide with asteroid
-                alien_hit_list = arcade.check_for_collision_with_list(alien, self.asteroid_list)
-                if alien_hit_list:
-                    #TODO: Add result of alien death
-                    alien.kill()
+#                 # Aliens collide with asteroid
+#                 alien_hit_list = arcade.check_for_collision_with_list(alien, self.asteroid_list)
+#                 if alien_hit_list:
+#                     #TODO: Add result of alien death
+#                     alien.kill()
                 
                 # Alien shooting
                 degreeOfSpace = 3
@@ -301,15 +310,16 @@ class MyGame(arcade.Window):
                             x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
                             y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
                             
-                            self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
-                                self.numOfAsteroids, x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                                 x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                                 
-                            self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
-                                self.numOfAsteroids, x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                                 x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
+                            self.numOfAsteroids = self.numOfAsteroids + 2
                                 
                         asteroid_hit.kill()
                         bolt.kill()
-                        self.numOfAsteroids = self.numOfAsteroids - 1
+                        self.numOfAsteroids = self.numOfAsteroids-1
                         self.score = self.score + 10
                     
                 # Off Screen Deletion of Bolts 
@@ -394,6 +404,7 @@ class MyGame(arcade.Window):
                 if laser.health <= 0:
                     laser.kill()
                     self.laser = False
+                    self.pow = False
                     
             # Creation of More Asteroids When One Is Destroyed
             if self.numOfAsteroids < START_ASTEROID:
@@ -432,34 +443,8 @@ class MyGame(arcade.Window):
                     self.player_sprite.change_x = MOVEMENT_SPEED
                     self.player_sprite.angle = 270
                 
-                # General Shooting 
-                if key == arcade.key.SPACE and self.laser == False:
-                    bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
-                    boltDistFromPlayer = 25
-                    bolt.type = 0
-                    
-                    if self.player_sprite.angle == 0:
-                        bolt.center_x = self.player_sprite.center_x
-                        bolt.center_y = self.player_sprite.center_y + boltDistFromPlayer
-                        bolt.change_x = 0
-                        bolt.change_y = BOLT_SPEED
-                    elif self.player_sprite.angle == 180:
-                        bolt.center_x = self.player_sprite.center_x
-                        bolt.center_y = self.player_sprite.center_y - boltDistFromPlayer
-                        bolt.change_x = 0
-                        bolt.change_y = -BOLT_SPEED
-                    elif self.player_sprite.angle == 90:
-                        bolt.center_x = self.player_sprite.center_x - boltDistFromPlayer
-                        bolt.center_y = self.player_sprite.center_y 
-                        bolt.change_x = -BOLT_SPEED
-                        bolt.change_y = 0
-                    elif self.player_sprite.angle == 270:
-                        bolt.center_x = self.player_sprite.center_x + boltDistFromPlayer
-                        bolt.center_y = self.player_sprite.center_y 
-                        bolt.change_x = BOLT_SPEED
-                        bolt.change_y = 0
-                    self.bolt_list.append(bolt)
-                elif key == arcade.key.SPACE and self.laser == True:
+                
+                if key == arcade.key.SPACE and self.laser == True:
                     # Special Shooting (LASER)
 
                     laser = arcade.Sprite("Resources/laser.png", SPRITE_SCALING_LASER)
@@ -487,11 +472,13 @@ class MyGame(arcade.Window):
                         laser.angle = 270
     
                     self.laser_list.append(laser)
-                
-                if key == arcade.key.Q:
+                #Big Bolts
+                elif key == arcade.key.SPACE and self.bb > 0:
                     bolt = arcade.Sprite("Resources/bolt.png", 4*SPRITE_SCALING_BOLT)
                     boltDistFromPlayer = 50
                     bolt.type = 1
+                    self.bb = self.bb -1
+                    if self.bb == 0: self.player_sprite.set_texture(0); self.pow = False
                     
                     if self.player_sprite.angle == 0:
                         bolt.center_x = self.player_sprite.center_x
@@ -514,7 +501,33 @@ class MyGame(arcade.Window):
                         bolt.change_x = 0.5*BOLT_SPEED
                         bolt.change_y = 0
                     self.bolt_list.append(bolt)
+                # General Shooting 
+                elif key == arcade.key.SPACE:
+                    bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
+                    boltDistFromPlayer = 25
+                    bolt.type = 0
                     
+                    if self.player_sprite.angle == 0:
+                        bolt.center_x = self.player_sprite.center_x
+                        bolt.center_y = self.player_sprite.center_y + boltDistFromPlayer
+                        bolt.change_x = 0
+                        bolt.change_y = BOLT_SPEED
+                    elif self.player_sprite.angle == 180:
+                        bolt.center_x = self.player_sprite.center_x
+                        bolt.center_y = self.player_sprite.center_y - boltDistFromPlayer
+                        bolt.change_x = 0
+                        bolt.change_y = -BOLT_SPEED
+                    elif self.player_sprite.angle == 90:
+                        bolt.center_x = self.player_sprite.center_x - boltDistFromPlayer
+                        bolt.center_y = self.player_sprite.center_y 
+                        bolt.change_x = -BOLT_SPEED
+                        bolt.change_y = 0
+                    elif self.player_sprite.angle == 270:
+                        bolt.center_x = self.player_sprite.center_x + boltDistFromPlayer
+                        bolt.center_y = self.player_sprite.center_y 
+                        bolt.change_x = BOLT_SPEED
+                        bolt.change_y = 0
+                    self.bolt_list.append(bolt)
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
         if self.current_state == GAME_RUNNING:
