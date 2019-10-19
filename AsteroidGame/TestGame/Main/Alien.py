@@ -8,7 +8,6 @@ TODO: make aliens more interesting
 
 import random 
 import arcade
-from PIL.ImageChops import screen
 
 def createAlien(self, alien_list, numOfAliens, alienType, screen_height, screen_width):
     

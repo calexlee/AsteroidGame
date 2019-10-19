@@ -16,18 +16,20 @@ SCREEN_HEIGHT = 768
 SPRITE_SCALING_PLAYER = 1.25
 MOVEMENT_SPEED = 5
 PLAYER_FLOAT = 0.1
-START_ASTEROID = 1
+START_ASTEROID = 3
 SPRITE_MAX_SCALING_ASTEROID = 2
 MAX_ASTEROID_SPEED = 1
 SPRITE_SCALING_BOLT = 0.25
 BOLT_SPEED = 7
 SPRITE_SCALING_LASER = 0.2
 SPRITE_SCALING_BEAM = 2
+BOSSPOINTS = 1000
 
 # Game States
 TITLE_SCREEN = 0
 GAME_RUNNING = 1
 GAME_OVER = 2
+GAME_WON = 3
 
 
 
@@ -58,7 +60,7 @@ class MyGame(arcade.Window):
         
         # Initial lives, Score and More
         self.lives = 3
-        self.score = 1000
+        self.score = 0
         self.numOfAsteroids = 0
         self.numOfAliens = 0
         self.numOfPow = 0
@@ -95,7 +97,19 @@ class MyGame(arcade.Window):
         start_x = SCREEN_WIDTH/2.65
         start_y = SCREEN_HEIGHT/2
         arcade.draw_text(output,start_x,start_y,arcade.color.WHITE,60,1000)
-
+    
+    def draw_win_page(self):
+        """
+        Draw End Screen
+        """
+        output = "You Win"
+        start_x = SCREEN_WIDTH/2.65
+        start_y = SCREEN_HEIGHT/2
+        arcade.draw_text(output,start_x, start_y, arcade.color.WHITE, 60, 1000)
+        output = "Press Space to restart"
+        start_y = SCREEN_HEIGHT/2.5
+        arcade.draw_text(output,start_x, start_y, arcade.color.WHITE, 60, 1000)
+        
     def draw_game_over(self):
         """
         Draws the Game Over Screen
@@ -140,6 +154,9 @@ class MyGame(arcade.Window):
         elif self.current_state == GAME_RUNNING:
             self.draw_game()
         
+        elif self.current_state == GAME_WON:
+            self.draw_game()
+            self.draw_win_page()
         else:
             self.draw_game()
             self.draw_game_over()
@@ -366,11 +383,12 @@ class MyGame(arcade.Window):
                     if boss_hit.health > 0:
                         if bolt.type == 0:
                             boss_hit.health = boss_hit.health - 1
-                        elif bolt.type == 75:
+                        elif bolt.type == 1:
                             boss_hit.health = boss_hit.health - 75
                     elif boss_hit.health <= 0:
                         boss_hit.kill()
                         self.numOfBoss = self.numOfBoss - 1
+                        self.score = self.score + BOSSPOINTS
                     bolt.kill()
                 
                 # Collision with asteroid
@@ -497,6 +515,7 @@ class MyGame(arcade.Window):
                             laser.kill()
                     else:
                         boss_hit.kill()
+                        self.score = self.score + BOSSPOINTS
                         laser.health = laser.health - 1
                         if laser.health <= 0:
                             laser.kill()
@@ -556,12 +575,16 @@ class MyGame(arcade.Window):
                 self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
                     self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
              
+            # End of Game when score > 1,000,000
+            if self.score >= 1000000:
+                self.current_state = GAME_WON
+             
             self.physics_engine.update()
         
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. 
         TODO: More dynamic attacks/interactions"""
-        if self.current_state == TITLE_SCREEN:
+        if self.current_state == TITLE_SCREEN or self.current_state == GAME_WON:
             if key == arcade.key.SPACE:
             # Starts the game initially
                 self.setup()
