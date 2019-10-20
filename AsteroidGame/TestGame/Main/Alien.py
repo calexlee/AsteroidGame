@@ -21,8 +21,9 @@ def createAlien(self, alien_list, numOfAliens, alienType, screen_height, screen_
     elif alienType == 4:
         alien = arcade.Sprite("Resources/alien_standard.png", 2*alien_size)
         alien.type = alienType
-    # Asteroid Qualities
+    # Alien Qualities
     alien.health = 2*alien_size
+    alien.timer = 0
                 
     # Placement
     spawn = random.randint(1,4)
@@ -77,7 +78,7 @@ def createBoss(self,boss_list,screen_height,screen_width):
     
     boss_size = 5
     boss = arcade.Sprite("Resources/boss.png",boss_size)
-    boss.health = 1000
+    boss.health = 400
     boss.beamTimer = 1000
     boss.beamActive = False
     boss.shootTimer = 50

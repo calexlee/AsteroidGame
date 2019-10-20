@@ -71,6 +71,7 @@ class MyGame(arcade.Window):
         
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
+        self.player_sprite.timer = 0
         self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
         self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-laser.png"))
         self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-bb.png"))
@@ -174,6 +175,19 @@ class MyGame(arcade.Window):
             boss_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
             beam_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.beam_list)
             
+            # Player timer
+            self.player_sprite.timer = self.player_sprite.timer - 1 
+            
+            # Player Bounds Checking
+            if self.player_sprite.center_x > SCREEN_WIDTH:
+                self.player_sprite.center_x = 0
+            elif self.player_sprite.center_x < 0:
+                self.player_sprite.center_x = SCREEN_WIDTH
+            elif self.player_sprite.center_y > SCREEN_HEIGHT:
+                self.player_sprite.center_y = 0
+            elif self.player_sprite.center_y < 0:
+                self.player_sprite.center_y = SCREEN_HEIGHT
+
             # Checking player collisions
             if hit_list or bolt_hit_list or alien_hit_list or boss_hit_list or beam_hit_list:
                 if self.lives > 1:
@@ -307,10 +321,12 @@ class MyGame(arcade.Window):
                     
                     # Alien shooting
                     degreeOfSpace = 3
+                    alien.timer = alien.timer - 1
                     if alien.center_x < self.player_sprite.center_x + degreeOfSpace \
                     and alien.center_x > self.player_sprite.center_x - degreeOfSpace \
                     and alien.center_y > self.player_sprite.center_y:
-                        if alien.type <= 3:
+                        if alien.type <= 3 and alien.timer < 0:
+                            alien.timer = 10
                             bolt = arcade.Sprite("Resources/alienbolt.png", SPRITE_SCALING_BOLT) 
                             bolt.type = 0
                             bolt.center_x = alien.center_x 
@@ -318,7 +334,8 @@ class MyGame(arcade.Window):
                             bolt.change_x = 0
                             bolt.change_y = -BOLT_SPEED*.65
                             self.bolt_list.append(bolt)
-                        if alien.type == 4:
+                        if alien.type == 4 and alien.timer < 0:
+                            alien.timer = 10
                             bolt = arcade.Sprite("Resources/alienbolt.png", 5*SPRITE_SCALING_BOLT) 
                             bolt.type = 1
                             bolt.center_x = alien.center_x 
@@ -576,7 +593,7 @@ class MyGame(arcade.Window):
                     self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
              
             # End of Game when score > 1,000,000
-            if self.score >= 1000000:
+            if self.score >= 10000:
                 self.current_state = GAME_WON
              
             self.physics_engine.update()
@@ -584,6 +601,7 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. 
         TODO: More dynamic attacks/interactions"""
+        
         if self.current_state == TITLE_SCREEN or self.current_state == GAME_WON:
             if key == arcade.key.SPACE:
             # Starts the game initially
@@ -641,8 +659,9 @@ class MyGame(arcade.Window):
     
                     self.laser_list.append(laser)
                 #Big Bolts
-                elif key == arcade.key.SPACE and self.bb > 0:
+                elif key == arcade.key.SPACE and self.bb > 0 and self.player_sprite.timer < 0:
                     bolt = arcade.Sprite("Resources/bolt.png", 4*SPRITE_SCALING_BOLT)
+                    self.player_sprite.timer = 10
                     boltDistFromPlayer = 50
                     bolt.type = 1
                     self.bb = self.bb -1
@@ -670,10 +689,11 @@ class MyGame(arcade.Window):
                         bolt.change_y = 0
                     self.bolt_list.append(bolt)
                 # General Shooting 
-                elif key == arcade.key.SPACE:
+                elif key == arcade.key.SPACE and self.player_sprite.timer < 0:
                     bolt = arcade.Sprite("Resources/bolt.png", SPRITE_SCALING_BOLT)
                     boltDistFromPlayer = 25
                     bolt.type = 0
+                    self.player_sprite.timer = 10
                     
                     if self.player_sprite.angle == 0:
                         bolt.center_x = self.player_sprite.center_x
