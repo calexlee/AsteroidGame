@@ -24,6 +24,7 @@ BOLT_SPEED = 7
 SPRITE_SCALING_LASER = 0.2
 SPRITE_SCALING_BEAM = 2
 BOSSPOINTS = 1000
+PLAYER_INVULNERABILITY = 300
 
 # Game States
 TITLE_SCREEN = 0
@@ -59,8 +60,8 @@ class MyGame(arcade.Window):
         self.beam_list = arcade.SpriteList()
         
         # Initial lives, Score and More
-        self.lives = 3
-        self.score = 0
+        self.lives = 7
+        self.score = 900
         self.numOfAsteroids = 0
         self.numOfAliens = 0
         self.numOfPow = 0
@@ -72,9 +73,11 @@ class MyGame(arcade.Window):
         # Sets up the player in the center
         self.player_sprite = arcade.Sprite("Resources/spaceship.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.timer = 0
+        self.player_sprite.invul = PLAYER_INVULNERABILITY
         self.player_sprite.append_texture(arcade.load_texture("Resources/explosion.png"))
         self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-laser.png"))
         self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-bb.png"))
+        self.player_sprite.append_texture(arcade.load_texture("Resources/spaceship-invul.png"))
         self.player_sprite.center_x = SCREEN_WIDTH/2
         self.player_sprite.center_y = SCREEN_HEIGHT/2
         self.player_sprite.movable = True
@@ -175,8 +178,15 @@ class MyGame(arcade.Window):
             boss_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_list)
             beam_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.beam_list)
             
-            # Player timer
+            # Player timers
             self.player_sprite.timer = self.player_sprite.timer - 1 
+            self.player_sprite.invul = self.player_sprite.invul - 1
+            
+            # Player invulnerability coating
+            if self.player_sprite.invul == 0:
+                self.player_sprite.set_texture(0)
+            elif self.player_sprite.invul == PLAYER_INVULNERABILITY - 1:
+                self.player_sprite.set_texture(4)
             
             # Player Bounds Checking
             if self.player_sprite.center_x > SCREEN_WIDTH:
@@ -189,10 +199,12 @@ class MyGame(arcade.Window):
                 self.player_sprite.center_y = SCREEN_HEIGHT
 
             # Checking player collisions
-            if hit_list or bolt_hit_list or alien_hit_list or boss_hit_list or beam_hit_list:
+            if (hit_list or bolt_hit_list or alien_hit_list or boss_hit_list or beam_hit_list) \
+                and self.player_sprite.invul < 0:
                 if self.lives > 1:
                     self.player_sprite.center_x = SCREEN_WIDTH/2
                     self.player_sprite.center_y = SCREEN_HEIGHT/2
+                    self.player_sprite.invul = PLAYER_INVULNERABILITY
                     self.lives = self.lives - 1
                     self.score = self.score - 10
                 else:
@@ -231,8 +243,10 @@ class MyGame(arcade.Window):
                 self.boss_list = Main.Alien.createBoss(MyGame, self.boss_list, SCREEN_HEIGHT, SCREEN_WIDTH)
                 self.numOfBoss = 1
                 if self.numOfAliens > 0:
-                    for alien in self.alien_list:
-                        alien.kill()
+                    for alien_left in self.alien_list:
+                        alien_left.kill()
+                        self.numOfAliens = 0
+                        
                 
             for boss in self.boss_list:
                 boss.center_x =  boss.center_x + boss.change_x
