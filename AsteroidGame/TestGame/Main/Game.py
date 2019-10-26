@@ -60,8 +60,8 @@ class MyGame(arcade.Window):
         self.beam_list = arcade.SpriteList()
         
         # Initial lives, Score and More
-        self.lives = 7
-        self.score = 900
+        self.lives = 5
+        self.score = 0
         self.numOfAsteroids = 0
         self.numOfAliens = 0
         self.numOfPow = 0
@@ -260,7 +260,7 @@ class MyGame(arcade.Window):
                 
                 # Boss Beaming
                 if boss.beamTimer < 500 and not boss.beamActive:
-                    beam = arcade.Sprite("Resources/alienbolt.png", SPRITE_SCALING_BEAM) # Change to beam
+                    beam = arcade.Sprite("Resources/alienlaser.png", SPRITE_SCALING_BEAM) # Change to beam
                     beam.height = SCREEN_HEIGHT / 1.2          
                     beam.center_x = boss.center_x
                     beam.center_y = boss.center_y - 350
@@ -301,7 +301,7 @@ class MyGame(arcade.Window):
                 else:
                     boss.shootTimer = boss.shootTimer - 1
                 
-            if self.numOfBoss < 1:
+            if self.numOfBoss < 1 or self.score > 5000:
                 # Creation of Aliens (ultimately want to put on a timer)
                 if self.score < 250:
                     spawn = random.randint(1,200)
@@ -600,7 +600,7 @@ class MyGame(arcade.Window):
                     self.pow = False
                     
             # Creation of More Asteroids When One Is Destroyed
-            extraAsteroid = round(self.score/200)  
+            extraAsteroid = round(self.score/400)  
             
             if self.numOfAsteroids < START_ASTEROID + extraAsteroid:
                 self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,

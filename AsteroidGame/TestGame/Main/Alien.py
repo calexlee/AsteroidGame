@@ -15,8 +15,11 @@ def createAlien(self, alien_list, numOfAliens, alienType, screen_height, screen_
     
     alien_size = 1
     
-    if alienType <= 3:
+    if alienType <= 2:
         alien = arcade.Sprite("Resources/alien_standard.png", alien_size)
+        alien.type = alienType
+    elif alienType == 3:
+        alien = arcade.Sprite("Resources/alien_homing.png", alien_size)
         alien.type = alienType
     elif alienType == 4:
         alien = arcade.Sprite("Resources/alien_standard.png", 2*alien_size)
