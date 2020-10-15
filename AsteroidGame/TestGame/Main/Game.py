@@ -6,9 +6,9 @@ Created on May 21, 2019
 
 import random
 import arcade 
-import Main.Asteroid
-import Main.Alien
-import Main.Powerup
+import Asteroid
+import Alien
+import Powerup
 
 
 SCREEN_WIDTH = 1024
@@ -84,7 +84,7 @@ class MyGame(arcade.Window):
         self.player_list.append(self.player_sprite)
         
         for i in range(START_ASTEROID):
-            self.asteroid_list,self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame,False, self.asteroid_list,
+            self.asteroid_list,self.numOfAsteroids = Asteroid.createAsteroid(MyGame,False, self.asteroid_list,
                 self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
             
         # Physics
@@ -219,7 +219,7 @@ class MyGame(arcade.Window):
             if self.numOfPow < 1 and random.randint(1,10000) < 50:
                 powType = 1
                 self.numOfPow = self.numOfPow + 1
-                self.powerup_list = Main.Powerup.createPowerUp\
+                self.powerup_list = Powerup.createPowerUp\
                                     (self,self.powerup_list, powType, SCREEN_HEIGHT, SCREEN_WIDTH)
             
             pow_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.powerup_list)
@@ -240,7 +240,7 @@ class MyGame(arcade.Window):
             
             # Boss summoning
             if self.score > 1000 and self.numOfBoss < 1:
-                self.boss_list = Main.Alien.createBoss(MyGame, self.boss_list, SCREEN_HEIGHT, SCREEN_WIDTH)
+                self.boss_list = Alien.createBoss(MyGame, self.boss_list, SCREEN_HEIGHT, SCREEN_WIDTH)
                 self.numOfBoss = 1
                 if self.numOfAliens > 0:
                     for alien_left in self.alien_list:
@@ -312,7 +312,7 @@ class MyGame(arcade.Window):
                 
                 if spawn == 1:
                     alienType = random.randint(1,4)
-                    self.alien_list, self.numOfAliens = Main.Alien.createAlien\
+                    self.alien_list, self.numOfAliens = Alien.createAlien\
                                         (MyGame, self.alien_list, self.numOfAliens, alienType, SCREEN_HEIGHT, SCREEN_WIDTH)
                 
                 # Alien Movement
@@ -380,7 +380,7 @@ class MyGame(arcade.Window):
                 # Collision between asteroid physics
                 for asteroid2 in asteroid_hit_list:
                     if asteroid2 != asteroid:
-                        Main.Asteroid.physics(asteroid,asteroid2)
+                        Asteroid.physics(asteroid,asteroid2)
                         
                 # Off Screen 
                 if asteroid.center_x-asteroid.collision_radius > SCREEN_WIDTH:
@@ -451,10 +451,10 @@ class MyGame(arcade.Window):
                             x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
                             y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
                             
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                  x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                                 
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                  x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                             self.numOfAsteroids = self.numOfAsteroids + 2
                                 
@@ -493,10 +493,10 @@ class MyGame(arcade.Window):
                             x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
                             y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
                             
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                  x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                                 
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                 x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                             self.numOfAsteroids = self.numOfAsteroids + 2
                                 
@@ -579,10 +579,10 @@ class MyGame(arcade.Window):
                             x2 = asteroid_hit.center_x - asteroid_hit.collision_radius/2
                             y2 = asteroid_hit.center_y - asteroid_hit.collision_radius/2
                             
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                  x1, y1, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                                 
-                            self.asteroid_list = Main.Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
+                            self.asteroid_list = Asteroid.createMiniAsteroid(MyGame, self.asteroid_list,
                                 x2, y2, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
                             self.numOfAsteroids = self.numOfAsteroids + 2
                                 
@@ -603,7 +603,7 @@ class MyGame(arcade.Window):
             extraAsteroid = round(self.score/400)  
             
             if self.numOfAsteroids < START_ASTEROID + extraAsteroid:
-                self.asteroid_list, self.numOfAsteroids = Main.Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
+                self.asteroid_list, self.numOfAsteroids = Asteroid.createAsteroid(MyGame, True, self.asteroid_list,
                     self.numOfAsteroids, SCREEN_HEIGHT, SCREEN_WIDTH, SPRITE_MAX_SCALING_ASTEROID, MAX_ASTEROID_SPEED)
              
             # End of Game when score > 1,000,000
